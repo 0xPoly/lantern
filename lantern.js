@@ -70,7 +70,7 @@ var lantern = function() {
  * Entry point for SMTP-Lantern.
  */
 var main = function() {
-    addEventListener("click", lantern());
+    document.addEventListener("click", lantern);
 }
 
 main();
