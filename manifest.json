@@ -1,0 +1,16 @@
+{
+    "manifest_version": 2,
+
+    "name": "SMTP Lantern",
+    "version": "0.1",
+    "description": "Displays SMTP security information in popular webmail clients.",
+    "author": "poly",
+
+    "content_scripts": [
+        {
+            "matches": ["https://mail.google.com/*"],
+            "css": ["lantern.css"],
+            "js": ["gmail-handler.js", "lantern.js"]
+        }
+    ]
+}
