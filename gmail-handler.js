@@ -2,6 +2,7 @@
  * gmail-parser.js
  * Handles gmail-specific tasks
  */
+"use strict";
 
 /* Constants
  */
@@ -24,44 +25,62 @@ var gmail = {};
  * Returns array of type `message`.
  */
 gmail.findMessages = function() {
-    var rawMessageList = new Array();
+    var allMsgsSettled = new Array();
     var messageElements = document.getElementsByClassName(GMAIL_MESSAGE_CLASS);
 
     for (var x = 0; x < messageElements.length; x++) {
-        var tempMessage = new message();
-        tempMessage.injectionPoint = fetchInjectPoint(messageElements[x]);
-        tempMessage.headers = fetchRawHeaders(messageElements[x]);
-        rawMessageList.push(tempMessage);
+        try {
+            var injection = fetchInjectPoint(messageElements[x]);
+            var headers = fetchRawHeaders(messageElements[x]);
+
+            var messageFullfilled = [injection, headers];
+            var messagePromise = Promise.all(messageFullfilled);
+
+            allMsgsSettled.push(messagePromise);
+        } catch (error) {
+            console.warn("Could not parse message. Error: " + error);
+        }
     }
 
-    return rawMessageList;
+    return Promise.all(allMsgsSettled);
 };
 
+
 var fetchInjectPoint = function(messageElement) {
-    return messageElement.getElementsByClassName("gH")[0];
+    return new Promise(function(resolve, reject) {
+        var result = messageElement.getElementsByClassName("gH")[0];
+
+        if (result == undefined) {
+            reject("Could not find injection point");
+        }
+
+        resolve(result);
+    });
 }
 
 var fetchRawHeaders = function(messageElement) {
-    if (GMAIL_USER_ID == null) {
-        GMAIL_USER_ID = fetchUserID();
-    }
-    
-    var messageID = fetchMessageID(messageElement);
+    return new Promise(function(resolve, reject) {
+        if (GMAIL_USER_ID == null) {
+            GMAIL_USER_ID = fetchUserID();
+        }
+        
+        var messageID = fetchMessageID(messageElement);
 
-    var oRequest = new XMLHttpRequest();
-    var sURL = GMAIL_ORIGINAL_MESSAGE_URL
-             + GMAIL_USER_ID_PREFIX
-             + GMAIL_USER_ID
-             + GMAIL_MESSAGE_ID_PREFIX
-             + messageID;
+        var request = new XMLHttpRequest();
+        var messageURL = GMAIL_ORIGINAL_MESSAGE_URL
+                 + GMAIL_USER_ID_PREFIX
+                 + GMAIL_USER_ID
+                 + GMAIL_MESSAGE_ID_PREFIX
+                 + messageID;
 
-    oRequest.open("GET",sURL,false);
-    oRequest.setRequestHeader("User-Agent",navigator.userAgent);
-    oRequest.send(null)
-
-    if (oRequest.status==200) alert(oRequest.responseText);
-    else alert("Error executing XMLHttpRequest call!");
-    // TODO do something about NULL requests
+        request.open("GET", messageURL, true);
+        request.onload = function(e) {
+            if (request.status==200) resolve(request.responseText);
+            else reject("Error executing XMLHttpRequest call to fetch OM");
+        }
+        request.onerror = reject;
+        request.send(null)
+    });
 }
 
 /**
@@ -86,7 +105,7 @@ var fetchUserID = function() {
 var fetchMessageID = function(messageElement) {
     var IDContainer = messageElement.getElementsByClassName(GMAIL_MESSAGE_ID_CLASS)[0];
     if (IDContainer == undefined) 
-        return null;
+        throw "Could not find message ID class";
     var className = IDContainer.className;
     var messageID = GMAIL_MESSAGE_ID_REGEX.exec(className).toString();
     if (messageID != null) {
