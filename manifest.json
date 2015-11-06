@@ -12,5 +12,9 @@
             "css": ["lantern.css"],
             "js": ["gmail-handler.js", "indicator.js", "lantern.js"]
         }
+    ],
+
+    "web_accessible_resources": [
+        "img/*.png"
     ]
 }
