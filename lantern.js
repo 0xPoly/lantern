@@ -136,9 +136,6 @@ var createMessage = function(injectionPoint, headers) {
     return tempMessage;
 }
 
-var injectIndicator = function(message) {
-}
-
 var collectHeaders = function() {
     var unProcessedMessages = new Array();
     var mailHost = getMailHost();

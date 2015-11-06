@@ -48,7 +48,7 @@ gmail.findMessages = function() {
 
 var fetchInjectPoint = function(messageElement) {
     return new Promise(function(resolve, reject) {
-        var result = messageElement.getElementsByClassName("gH")[0];
+        var result = messageElement.getElementsByClassName("g3")[0];
 
         if (result == undefined) {
             reject("Could not find injection point");
