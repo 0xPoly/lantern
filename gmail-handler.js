@@ -31,7 +31,9 @@ gmail.findMessages = function() {
     for (var x = 0; x < messageElements.length; x++) {
         try {
             var injection = fetchInjectPoint(messageElements[x]);
-            var headers = fetchRawHeaders(messageElements[x]);
+            var headers = fetchRawHeaders(messageElements[x]).catch(function() {
+                console.warn("Couldn't find message headers for message #" + x); 
+            });
 
             var messageFullfilled = [injection, headers];
             var messagePromise = Promise.all(messageFullfilled);
@@ -63,8 +65,13 @@ var fetchRawHeaders = function(messageElement) {
         if (GMAIL_USER_ID == null) {
             GMAIL_USER_ID = fetchUserID();
         }
-        
-        var messageID = fetchMessageID(messageElement);
+
+        try {
+            var messageID = fetchMessageID(messageElement);
+        } catch (error) {
+            console.warn("Failed to find message id");
+            reject(error);
+        }
 
         var request = new XMLHttpRequest();
         var messageURL = GMAIL_ORIGINAL_MESSAGE_URL

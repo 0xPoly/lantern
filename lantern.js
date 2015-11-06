@@ -63,7 +63,12 @@ Message.prototype._parseHeaders = function(rawHeaders) {
  */
 Message.prototype._decideSecurity = function() {
     var authHeaders = self.parsedHeaders["Authentication-Results"];
+
+    if (authHeaders == undefined) 
+        throw "no authentication headers found";
+
     authHeaders = authHeaders.split('\n');
+
 
     // parse auth headers line by line
     for(var i = 0; i < authHeaders.length; i++) {
@@ -90,7 +95,6 @@ Message.prototype._decideSecurity = function() {
                         this.DMARC = securityLevel(result);
                     break;
             }
-            debugger;
         }
     }
 }
@@ -170,11 +174,24 @@ var getSource = function() {
     return document.documentElement.outerHTML;
 }
 
+var clearOld = function() {
+    var paras = document.getElementsByClassName('tooltip');
+
+    while(paras[0]) {
+            paras[0].parentNode.removeChild(paras[0]);
+    }
+}
+
 var lantern = function() {
     collectHeaders().then(function(messages) {
+        clearOld();
         for (var i = 0; i < messages.length; i++) {
-            var tempMessage = createMessage(messages[i][0], messages[i][1]);
-            injectIndicator(tempMessage);
+            try {
+                var tempMessage = createMessage(messages[i][0], messages[i][1]);
+                injectIndicator(tempMessage);
+            } catch (error) {
+                // TODO message has no authentication headers?
+            }
         }
     });
 };
