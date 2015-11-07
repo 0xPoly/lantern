@@ -1,5 +1,9 @@
 "use strict";
 
+/* Constants
+ */
+var HELP_PAGE_URL = "https://github.com/0xPoly/lantern/docs/explain.md";
+
 var injectIndicator= function(tempMessage) {
     var indicatorHTML = " \
             <table style='text-align:left; table-layout: fixed; width: 100%; vertical-align: top;'> \
@@ -31,7 +35,7 @@ var injectIndicator= function(tempMessage) {
                 "</td> \
               </tr> \
             </table> \
-            <a href='https://github.com'>What do these mean?</a>";
+            <a href=\"" + HELP_PAGE_URL + "\"> What do these mean?</a>";
 
     var indicatorHoverover = "<span class='tooltip'><img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABPklEQVRIie3VvytFcRjH8ddNKT+i1B2UskhWgxJ2o1L+AIvYLGJTd1DKJJtB4j/wY2K4E4MMMsigTIqBusMlcg3fc1Onc+85172jTz116vs8n/f3fM95ni/pasMENnCDaxQwhlyG+kT1Yg77eEYFZZxGz9V4wi5m0JlmOoRlnOEjMnjGHmbRFeVVakQZJ1jEQNKOq4l32MSUcDxx1QLEIxFQSHvNZgFr/4B/QFbAR7yoDV/YahHgManwQejEVgCKSYXbKKGjBYCVpMLxaHGpScAnBmsVXwjn190E4KDe7qajpJ0/AsoYrgcgjOdvYcY3ClhPMydcHJd4w2gDgHO0ZwFAHvd4xWQGwJXQrA2pH7d4x3wdQBE9jZpX1Ydjv39HPmZ+KMNdnKYcVoX58hIZl7DQrHFcI8KHPFKnkeL6AcB+5jJF7xy1AAAAAElFTkSuQmCC'/><span>" +
                              indicatorHTML +
