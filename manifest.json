@@ -9,8 +9,8 @@
     "content_scripts": [
         {
             "matches": ["https://mail.google.com/*"],
-            "css": ["lantern.css"],
-            "js": ["gmail-handler.js", "indicator.js", "lantern.js"]
+            "css": ["src/lantern.css"],
+            "js": ["src/gmail-handler.js", "src/indicator.js", "src/lantern.js"]
         }
     ],
 
