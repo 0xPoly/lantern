@@ -3,6 +3,10 @@
 /* Constants
  */
 var AUTH_HEADERS_REGEX = /(DKIM|SPF|DMARC)=([a-z]+)/i;
+var DOMAIN_REGEX = /[a-zA-Z0-9][a-zA-Z0-9-]+\.[a-zA-Z]{2,14}? /i;
+var FROM_REGEX = /(from)/i;
+var TO_REGEX = /(to|by)/i;
+var TLS_REGEX = /(TLS|SSL|Encrypt|cipher)/i;
 
 /**
  * `mail` is a class that represents a single SMTP message.
@@ -21,6 +25,7 @@ var AUTH_HEADERS_REGEX = /(DKIM|SPF|DMARC)=([a-z]+)/i;
  * With multiple records Lantern is fail-safe: 
  * If multiple records are found for the same field, only 
  * the lowest value (most severe warning) is considered.
+ *
  */
 function Message() {
     // DOM element to inject visual indicator into
@@ -32,10 +37,9 @@ function Message() {
     this.parsedHeaders = null;
 
     this.DKIM = 4;
-    // Sender Policy Framework - RFC 7208
     this.SPF = 4;
     this.DMARC = 4;
-    this.encrypt = 4;
+    this.encrypt = true;
 }
 
 Message.prototype._parseHeaders = function(rawHeaders) {
@@ -48,20 +52,61 @@ Message.prototype._parseHeaders = function(rawHeaders) {
 
     // now determine the present headers and store them in an object
     var headers = new Object();
+    headers["Received"] = new Array();
     var headerRegExp = /^(.+?): ((.|\r\n\s)+)\r\n/mg;
     var h;
-    while (h = headerRegExp.exec(headerLines))
-        headers[h[1]] = h[2];
+    while (h = headerRegExp.exec(headerLines)) {
+        if (h[1] == "Received") {
+            headers[h[1]].push(h[2]);
+        }
+        else {
+            headers[h[1]] = h[2];
+        }
+    }
 
     self.parsedHeaders = headers;
 }
 
+Message.prototype._decideEncryption = function() {
+    var rHeaders = self.parsedHeaders["Received"];
+    debugger;
+    for(var i = 0; i < rHeaders.length; i++) {
+        var fromDomain = undefined;
+        var toDomain = undefined;
+        var TLS = false;
+
+        var lines = rHeaders[i].split('\n');
+
+        for(var x = 0; x < lines.length; x++) {
+            if (FROM_REGEX.test(lines[x]) == true) {
+                if (DOMAIN_REGEX.exec(lines[x]) != null)
+                    fromDomain = DOMAIN_REGEX.exec(lines[x])[0];
+            }
+            else if (TO_REGEX.test(lines[x]) == true) {
+                if (DOMAIN_REGEX.exec(lines[x]) != null)
+                    toDomain = DOMAIN_REGEX.exec(lines[x])[0];
+            }
+            else if (TLS == false) {
+                TLS = TLS_REGEX.test(lines[x]);
+            }
+        }
+
+        if (fromDomain != toDomain && !TLS && fromDomain != undefined &&
+            toDomain != undefined) {
+            this.encrypt = false;
+            return;
+        }
+    }
+    
+    this.encrypt = true;
+}
+
 /**
  * '_decideSecurity()' accepts a message class with parsed
- * headers and decides which security indicators should be
+ * headers and decides which authentication indicators should be
  * displayed to the user.
  */
-Message.prototype._decideSecurity = function() {
+Message.prototype._decideAuthentication = function() {
     var authHeaders = self.parsedHeaders["Authentication-Results"];
 
     if (authHeaders == undefined) 
@@ -135,7 +180,8 @@ var createMessage = function(injectionPoint, headers) {
 
     tempMessage.injectionPoint = injectionPoint;
     tempMessage._parseHeaders(headers);
-    tempMessage._decideSecurity();
+    tempMessage._decideAuthentication();
+    tempMessage._decideEncryption();
 
     return tempMessage;
 }
@@ -149,8 +195,10 @@ var collectHeaders = function() {
             return unProcessedMessages;
             break;
         default:
-            // errors thrown earlier should halt script before reaching here
-            throw "This error should never fire. Something has gone terribly wrong.";
+            // this should never fire -errors thrown earlier should halt
+            // script before reaching here
+            throw "Some bugs have names \n Others inscrutable numbers \n \
+            Yours has not even that."
     }
 
     return unProcessedMessages;

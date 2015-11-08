@@ -69,7 +69,9 @@ var fetchRawHeaders = function(messageElement) {
         try {
             var messageID = fetchMessageID(messageElement);
         } catch (error) {
-            console.warn("Failed to find message id");
+            console.warn("You step in the stream,   \n" +
+                         "But the water has moved on\n" +
+                         "Message is not here.        ");
             reject(error);
         }
 

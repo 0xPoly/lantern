@@ -34,12 +34,20 @@ var injectIndicator= function(tempMessage) {
                 DMARCCodetoIcon(tempMessage.DMARC) +
                 "</td> \
               </tr> \
+              <tr> \
+                <th>Encryption (changeme)</th> \
+                <td></td> \
+              </tr> \
+              <tr> \
+                <td colspan='2'>" +
+                tempMessage.encrypt.toString() +
+                "</td> \
+              </tr> \
             </table> \
             <a href=\"" + HELP_PAGE_URL + "\"> What do these mean?</a>";
 
-    var indicatorHoverover = "<span class='tooltip'><img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABPklEQVRIie3VvytFcRjH8ddNKT+i1B2UskhWgxJ2o1L+AIvYLGJTd1DKJJtB4j/wY2K4E4MMMsigTIqBusMlcg3fc1Onc+85172jTz116vs8n/f3fM95ni/pasMENnCDaxQwhlyG+kT1Yg77eEYFZZxGz9V4wi5m0JlmOoRlnOEjMnjGHmbRFeVVakQZJ1jEQNKOq4l32MSUcDxx1QLEIxFQSHvNZgFr/4B/QFbAR7yoDV/YahHgManwQejEVgCKSYXbKKGjBYCVpMLxaHGpScAnBmsVXwjn190E4KDe7qajpJ0/AsoYrgcgjOdvYcY3ClhPMydcHJd4w2gDgHO0ZwFAHvd4xWQGwJXQrA2pH7d4x3wdQBE9jZpX1Ydjv39HPmZ+KMNdnKYcVoX58hIZl7DQrHFcI8KHPFKnkeL6AcB+5jJF7xy1AAAAAElFTkSuQmCC'/><span>" +
-                             indicatorHTML +
-                             "</span></span>";
+    var indicatorHoverover = "<span class='tooltip'><img src=\"" + chrome.extension.getURL('img/lantern.png') +
+                             "\"> <span>" + indicatorHTML + "</span></span>";
   
     tempMessage.injectionPoint.insertAdjacentHTML("beforebegin", indicatorHoverover);
 }
@@ -97,7 +105,7 @@ var DMARCCodetoIcon = function(statusCode) {
     switch(statusCode) {
         case 3: // pass
             return "<img src=\"" + chrome.extension.getURL('img/DMARC-pass.png') + "\"> "+
-                    "This email has passed security checks specified by the sender";
+                    "This email has passed security checks specified by the sender.";
             break;
         case 2: // neutral
         case 4: // unconfigured, fallthrough on purpose
