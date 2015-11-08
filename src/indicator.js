@@ -35,7 +35,7 @@ var injectIndicator= function(tempMessage) {
                 "</td> \
               </tr> \
               <tr> \
-                <th>Encryption (changeme)</th> \
+                <th>Full STARTTLS (changeme)</th> \
                 <td></td> \
               </tr> \
               <tr> \
